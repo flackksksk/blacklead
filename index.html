@@ -69,6 +69,30 @@ table{width:100%;border-collapse:collapse}td{padding:8px 6px;border-top:1px soli
 .mradar{position:absolute;left:50%;top:50%;z-index:2;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .3s}.mradar.on{opacity:1}
 .mradar::before,.mradar::after{content:"";position:absolute;left:-90px;top:-90px;width:180px;height:180px;border-radius:50%;border:2px solid rgba(255,255,255,.55);opacity:0;animation:ring 1.8s ease-out infinite}.mradar::after{animation-delay:.9s}
 @keyframes ring{from{transform:scale(.2);opacity:.9}to{transform:scale(2.6);opacity:0}}
+/* AURORA: tokens e camada de tema */
+:root{--bg:#08090C;--bg2:#0C0D12;--bg3:#12131A;--bg4:#191A22;--fg:#F4F4F5;--mut:#92939D;--sil:#C9CAD1;--ln:rgba(255,255,255,.09);--ln2:rgba(255,255,255,.15);--red:#C62838;--red2:#E34B58;--redS:rgba(198,40,56,.12);--rg:rgba(198,40,56,.25);--glass:rgba(20,21,28,.72)}
+body{background:radial-gradient(1100px 560px at 88% -8%,rgba(198,40,56,.11),transparent 62%),var(--bg)}
+#nav{background:rgba(12,13,18,.72);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+#nav button.on{border-color:rgba(227,75,88,.55);background:var(--redS);box-shadow:0 0 18px var(--redS)}
+.aubtn{margin-top:auto}.aubtn.on i{color:var(--red2)}
+.logo b{color:var(--red2)}.kpi b{letter-spacing:-.03em;font-feature-settings:"tnum"}
+.glow{background:var(--glass)}.glow::before{background:conic-gradient(from var(--a),transparent 0 74%,var(--red2) 92%,transparent)}
+.card{background:linear-gradient(180deg,rgba(25,26,34,.72),rgba(18,19,26,.72))}.card:hover{border-color:rgba(227,75,88,.45);box-shadow:0 8px 30px rgba(0,0,0,.35),0 0 0 1px var(--redS)}
+.card.sel{border-color:var(--red2);box-shadow:0 0 0 1px var(--red2),0 0 26px var(--rg)}
+.rin{animation:rin .45s var(--d,0ms) both}@keyframes rin{from{opacity:0;transform:translateY(8px)}}
+.btn.p{background:var(--red);border-color:var(--red2);color:#fff}.btn.p:hover{background:var(--red2);box-shadow:0 0 22px var(--rg)}.btn:hover{border-color:var(--red2)}
+.sc{border-color:rgba(227,75,88,.6);color:#FFD9DC}.bar div i{background:linear-gradient(90deg,#5a1a22,var(--red2))}.dot.on{background:var(--red2)}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline-color:var(--red2)}
+.mapwrap{background:var(--bg)}.mgo{background:var(--red);color:#fff}.mgo:hover{box-shadow:0 0 26px var(--rg)}.mad:hover{background:var(--red);color:#fff;border-color:var(--red2)}
+.mcard{border-color:rgba(227,75,88,.55);background:rgba(18,19,26,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.mradar{display:none!important}.rdc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.mhud{position:absolute;right:12px;bottom:30px;z-index:4;min-width:190px;padding:10px 14px;border-radius:14px;background:rgba(18,19,26,.6);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--ln2);box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:11px;line-height:1.7;color:var(--mut)}
+.mhud b{float:right;margin-left:14px;color:var(--fg);font-weight:500}.hs{display:flex;align-items:center;gap:7px;margin-bottom:4px;color:var(--fg);font-weight:600;font-size:12px}
+.hd{width:7px;height:7px;border-radius:50%;background:#555}.hd.on{background:var(--red2);animation:pulse 1.4s ease-in-out infinite}
+.aup{position:fixed;left:16px;bottom:74px;z-index:40;width:250px;padding:14px;border-radius:16px;background:rgba(18,19,26,.82);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--ln2);box-shadow:0 20px 60px rgba(0,0,0,.6);display:none}.aup.on{display:block}
+.seg{display:flex;gap:4px}.seg button{flex:1;padding:6px 4px;border-radius:9px;border:1px solid var(--ln);background:var(--bg);color:var(--sil);font:inherit;font-size:12px;cursor:pointer}.seg button.on{border-color:var(--red2);background:var(--redS);color:#fff}
+input[type=range]{padding:0;accent-color:var(--red2)}
+@media(max-width:760px){.mhud{display:none}.aup{left:50%;transform:translateX(-50%)}}
 @media(prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
 </style></head>
 <body>
@@ -90,7 +114,7 @@ function score(l){const p=[],a=(k,c)=>{if(c)p.push([WL[k],W[k]])};
 a("nao",l.site=="nao");a("nv",l.site=="nv"||l.site=="off");a("ig",!l.ig);a("rt",+l.rating>=4.3);a("rv",+l.reviews>=30);a("ph",!!l.phone);
 return{v:Math.min(100,p.reduce((s,x)=>s+x[1],0)),p}}
 const render=()=>{
-$("#nav").innerHTML='<div class="logo">BLACK<b>LEAD</b></div>'+[["overview","Overview","◉"],["empresas","Empresas","⌕"],["leads","Leads","▤"],["mapa","Mapa","◍"],["config","Configurações","⚙"]].map(([k,n,i])=>`<button data-a="go" data-k="${k}" class="${V==k?"on":""}"><i>${i}</i><span>${n}</span></button>`).join("");
+$("#nav").innerHTML='<div class="logo">BLACK<b>LEAD</b></div>'+[["overview","Overview","◉"],["empresas","Empresas","⌕"],["leads","Leads","▤"],["mapa","Mapa","◍"],["config","Configurações","⚙"]].map(([k,n,i])=>`<button data-a="go" data-k="${k}" class="${V==k?"on":""}"><i>${i}</i><span>${n}</span></button>`).join("")+'<button class="aubtn'+(AU.mode!=='off'?' on':'')+'" data-a="aup" aria-label="Áudio e efeitos" title="Áudio e efeitos"><i>♪</i><span>Áudio</span></button>';
 $("#main").innerHTML={overview,empresas,leads,mapa,config}[V]();if(V=="mapa")mapMount()};
 function overview(){
 const n=L.length,c=f=>L.filter(f).length,ct=c(l=>l.stage>=3&&l.stage<=8),cl=c(l=>l.stage==8);
@@ -170,24 +194,24 @@ else if(t.dataset.g){G[t.dataset.g]=t.value;const l=L.find(x=>x.id==M);if(l)$("#
 else if(t.dataset.p){const l=L.find(x=>x.id==M);if(!l)return;l[t.dataset.p]=t.dataset.p=="stage"?+t.value:t.value;if(t.dataset.p=="stage"&&l.stage>=3&&l.stage<=8)l.last=new Date().toISOString().slice(0,10);sv();const s=$("#modal").scrollTop;openM(M);$("#modal").scrollTop=s;toast("Alteração salva")}});
 /* ---- Busca de empresas: OpenStreetMap via /api/search ---- */
 let R=null;
-function remotePanel(){if(!R)return '';let h='<div class="glow panel"><h2>Empresas encontradas no OpenStreetMap</h2>';
+function remotePanel(){if(!R)return '';const fr=R.fresh;R.fresh=0;let h='<div class="glow panel"><h2>Empresas encontradas no OpenStreetMap</h2>';
 if(R.busy)return h+'<div class="no">Buscando… pode levar até 30 segundos.</div></div>';
 if(R.err)return h+'<div class="empty">'+esc(R.err)+'</div></div>';
 const it=R.items;
 h+='<p class="no" style="margin-top:0">'+it.length+' resultado(s) para “'+esc(R.q)+'” em '+esc(R.where)+'. Dados © contribuidores do OpenStreetMap. Telefone e site só aparecem quando alguém os cadastrou lá: a ausência não significa que a empresa não tenha.</p>';
 if(!it.length)return h+'<div class="empty">Nenhum resultado. Tente outro termo (ex.: restaurante, farmácia, academia) ou uma cidade maior.</div></div>';
 const dup=o=>L.some(x=>key(x)==key(o));
-return h+'<div class="row" style="margin-bottom:10px"><button class="btn p" data-a="radd">Adicionar todos os novos</button><button class="btn" data-a="go" data-k="mapa">Ver no mapa</button></div><div class="cards">'+it.map((o,i)=>`<div class="card"><b>${esc(o.name)}</b><div class="no">${esc(o.cat)||'Sem categoria'}${o.addr?' · '+esc(o.addr):''}</div><div class="row" style="margin:8px 0"><span class="tag">${o.web?'Site informado':'Site não verificado'}</span>${o.ig?'<span class="tag">Instagram</span>':''}</div><div class="no">${esc(o.phone)||'Telefone não informado'}</div><div class="row" style="margin-top:10px">${dup(o)?'<span class="tag">Já na sua base</span>':'<button class="btn sm" data-a="radd" data-i="'+i+'">Adicionar</button>'}<a class="tag" style="color:#fff" href="${esc(o.osm)}" target="_blank" rel="noopener noreferrer">Ver no OSM</a></div></div>`).join('')+'</div></div>'}
+return h+'<div class="row" style="margin-bottom:10px"><button class="btn p" data-a="radd">Adicionar todos os novos</button><button class="btn" data-a="go" data-k="mapa">Ver no mapa</button></div><div class="cards">'+it.map((o,i)=>`<div class="card${mpSel==='r:'+i?' sel':''}${fr?' rin':''}"${fr?' style="--d:'+Math.min(i,12)*35+'ms"':''}><b>${esc(o.name)}</b><div class="no">${esc(o.cat)||'Sem categoria'}${o.addr?' · '+esc(o.addr):''}</div><div class="row" style="margin:8px 0"><span class="tag">${o.web?'Site informado':'Site não verificado'}</span>${o.ig?'<span class="tag">Instagram</span>':''}</div><div class="no">${esc(o.phone)||'Telefone não informado'}</div><div class="row" style="margin-top:10px">${dup(o)?'<span class="tag">Já na sua base</span>':'<button class="btn sm" data-a="radd" data-i="'+i+'">Adicionar</button>'}<a class="tag" style="color:#fff" href="${esc(o.osm)}" target="_blank" rel="noopener noreferrer">Ver no OSM</a></div></div>`).join('')+'</div></div>'}
 async function osmSearch(d){const cat=(d.cat||'').trim(),kw=(d.kw||'').trim(),city=(d.city||'').trim();
 if(!cat&&!kw){R=null;render();return toast('Informe o tipo de empresa ou uma palavra-chave')}
 if(!city){R={err:'Informe a cidade para pesquisar no OpenStreetMap.'};render();return}
-R={busy:true};render();
+R={busy:true};render();snd('go');
 try{const r=await fetch('/api/search?'+new URLSearchParams({q:cat||kw,city,uf:d.uf||''}));const j=await r.json().catch(()=>null);
 if(!r.ok||!j||!Array.isArray(j.items))throw new Error(j&&j.error?j.error:'A busca não respondeu (HTTP '+r.status+'). Ela só funciona no site publicado na Vercel.');
 let it=j.items;if(cat&&kw){const k=kw.toLowerCase();it=it.filter(o=>(o.name+' '+o.cat+' '+o.addr).toLowerCase().includes(k))}
 it.forEach(o=>{o.city=city;o.osm='https://www.openstreetmap.org/'+o.t+'/'+o.id});
-R={items:it,q:cat||kw,where:city+(d.uf?'/'+d.uf:''),city,uf:d.uf||''}}
-catch(e){R={err:e.message==='Failed to fetch'?'Não foi possível chamar /api/search. Ela só funciona no site publicado na Vercel.':e.message}}
+R={fresh:1,items:it,q:cat||kw,where:city+(d.uf?'/'+d.uf:''),city,uf:d.uf||''};snd(it.length?'ok':'err')}
+catch(e){snd('err');R={err:e.message==='Failed to fetch'?'Não foi possível chamar /api/search. Ela só funciona no site publicado na Vercel.':e.message}}
 render()}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-a="radd"]');if(!t||!R||!R.items)return;
 const its=t.dataset.i!=null?[R.items[+t.dataset.i]]:R.items;let n=0;
@@ -197,7 +221,7 @@ sv();render();toast(n+' empresa(s) adicionada(s)')});
 const MAP={ver:"4.7.1",style:"dataviz-dark",styleUrl:k=>`https://api.maptiler.com/maps/${MAP.style}/style.json?key=${encodeURIComponent(k)}`,credit:'<a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>'};
 let mp=null,mpEl=null,mpBusy=false,mpSel=null,mpFR=null,mpPoi=null;
 const hasXY=l=>l.lat!=null&&l.lng!=null&&l.lat!==""&&l.lng!==""&&isFinite(+l.lat)&&isFinite(+l.lng)&&Math.abs(+l.lat)<=90&&Math.abs(+l.lng)<=180;
-function mapa(){return`<h1>Mapa</h1><p class="sub">Branco: resultados da busca. Centro preto com anel: empresas salvas. Cinza pequeno: outros estabelecimentos do mapa (aproxime para ver). Passe o mouse para ver o nome e clique para inspecionar. <span id="mapstat"></span></p><div id="mapslot" class="glow mapwrap"><div id="mapmsg" class="mmsg"></div><div id="mbar" class="mbar"><div class="mbi"><input id="marq" placeholder="O que procurar? (vazio = todas)" maxlength="40" autocomplete="off"><button id="mgo" class="mgo" data-a="marea"><span>⌕</span><span id="mgt">Pesquisar nesta área</span></button><button class="msnd" data-a="msnd" aria-label="Som" title="Som">♪</button></div><div id="mrow" class="mrow"><span id="mres"></span><button id="madd" class="mad" data-a="radd">Adicionar todas</button></div></div><div id="mradar" class="mradar"></div><div class="mctl"><button class="btn sm" data-a="mzi" aria-label="Aproximar">+</button><button class="btn sm" data-a="mzo" aria-label="Afastar">−</button><button class="btn sm" data-a="mfit">Ajustar</button></div><div id="mapcard" class="mcard"></div><div class="mcred">${MAP.credit}</div></div>`}
+function mapa(){return`<h1>Mapa</h1><p class="sub">Branco: resultados da busca. Centro preto com anel: empresas salvas. Cinza pequeno: outros estabelecimentos do mapa (aproxime para ver). Passe o mouse para ver o nome e clique para inspecionar. <span id="mapstat"></span></p><div id="mapslot" class="glow mapwrap"><div id="mapmsg" class="mmsg"></div><div id="mhud" class="mhud" aria-live="polite"></div><div id="mbar" class="mbar"><div class="mbi"><input id="marq" placeholder="O que procurar? (vazio = todas)" maxlength="40" autocomplete="off"><button id="mgo" class="mgo" data-a="marea"><span>⌕</span><span id="mgt">Pesquisar nesta área</span></button><button class="msnd" data-a="aup" aria-label="Áudio e efeitos" title="Áudio e efeitos">♪</button></div><div id="mrow" class="mrow"><span id="mres"></span><button id="madd" class="mad" data-a="radd">Adicionar todas</button></div></div><div id="mradar" class="mradar"></div><div class="mctl"><button class="btn sm" data-a="mzi" aria-label="Aproximar">+</button><button class="btn sm" data-a="mzo" aria-label="Afastar">−</button><button class="btn sm" data-a="mfit">Ajustar</button></div><div id="mapcard" class="mcard"></div><div class="mcred">${MAP.credit}</div></div>`}
 function mapMsg(t){const m=$("#mapmsg");if(m){m.textContent=t;m.style.display=t?"flex":"none"}}
 function mapFC(){return{type:"FeatureCollection",features:L.filter(hasXY).map(l=>({type:"Feature",geometry:{type:"Point",coordinates:[+l.lng,+l.lat]},properties:{id:l.id,name:l.name,s:score(l).v,fav:l.fav?1:0}}))}}
 function mapRC(){const f=[];if(R&&R.items)R.items.forEach((o,i)=>{if(hasXY(o)&&!L.some(x=>key(x)==key(o)))f.push({type:'Feature',geometry:{type:'Point',coordinates:[+o.lng,+o.lat]},properties:{i:i,name:o.name}})});return{type:'FeatureCollection',features:f}}
@@ -207,12 +231,12 @@ if(!r.ok)throw new Error("/api/config respondeu HTTP "+r.status+". Publique o pr
 const j=await r.json().catch(()=>null);if(!j)throw new Error("/api/config não retornou JSON. Publique o projeto na Vercel com a pasta api/.");
 if(!j.maptilerKey)throw new Error("A variável de ambiente MAPTILER_API_KEY não está definida no servidor.");return j.maptilerKey}
 const PTC={restaurant:'Restaurante',fast_food:'Lanchonete',cafe:'Café',bar:'Bar',pharmacy:'Farmácia',school:'Escola',hospital:'Hospital',bank:'Banco',grocery:'Mercearia',supermarket:'Supermercado',clothing_store:'Loja de roupas',hairdresser:'Salão de beleza',bakery:'Padaria',fitness_centre:'Academia',lodging:'Hospedagem',hotel:'Hotel',doctors:'Consultório',dentist:'Dentista',shop:'Loja',beauty:'Estética',car_repair:'Oficina mecânica'};
-function mapHi(){const s=mp&&mp.getSource('sel');if(!s)return;let p=null;const m=String(mpSel);if(m==='p'&&mpPoi)p=[mpPoi.lng,mpPoi.lat];else if(m.indexOf('r:')==0&&R&&R.items){const o=R.items[+m.slice(2)];if(o)p=[o.lng,o.lat]}else{const l=L.find(x=>x.id==mpSel);if(l&&hasXY(l))p=[+l.lng,+l.lat]}s.setData({type:'FeatureCollection',features:p?[{type:'Feature',geometry:{type:'Point',coordinates:p},properties:{}}]:[]})}
+function mapHi(){const s=mp&&mp.getSource('sel');if(!s)return;let p=null;const m=String(mpSel);if(m==='p'&&mpPoi)p=[mpPoi.lng,mpPoi.lat];else if(m.indexOf('r:')==0&&R&&R.items){const o=R.items[+m.slice(2)];if(o)p=[o.lng,o.lat]}else{const l=L.find(x=>x.id==mpSel);if(l&&hasXY(l))p=[+l.lng,+l.lat]}s.setData({type:'FeatureCollection',features:p?[{type:'Feature',geometry:{type:'Point',coordinates:p},properties:{}}]:[]});const kk=String(mpSel);if(p&&kk!==RD.sel){RD.sel=kk;radarOnce(p)}else if(!p)RD.sel=''}
 function mapCard(){mapHi();const c=$("#mapcard");if(!c)return;if(mpSel==='p'&&mpPoi){c.style.display='block';c.innerHTML='<b>'+esc(mpPoi.name)+'</b><div class="no">'+(esc(mpPoi.cat)||'Estabelecimento')+' · ponto do mapa (OpenStreetMap)</div><div class="no">Sem telefone nem site neste ponto. Adicione e preencha no perfil.</div><div class="row" style="margin-top:8px"><button class="btn sm p" data-a="padd">Adicionar aos leads</button><button class="btn sm" data-a="mclose">Fechar</button></div>';return}if(String(mpSel).indexOf('r:')==0&&R&&R.items){const ix=+String(mpSel).slice(2),o=R.items[ix];if(o&&!L.some(x=>key(x)==key(o))){c.style.display='block';c.innerHTML='<b>'+esc(o.name)+'</b><div class="no">'+esc(o.cat)+(o.addr?' · '+esc(o.addr):'')+'</div><div class="no">'+(esc(o.phone)||'Telefone não informado')+'</div><div class="row" style="margin-top:8px"><button class="btn sm p" data-a="radd" data-i="'+ix+'">Adicionar aos leads</button><button class="btn sm" data-a="mclose">Fechar</button></div>';return}mpSel=null}const l=L.find(x=>x.id==mpSel);if(!l){c.style.display="none";return}c.style.display="block";c.innerHTML=`<b>${esc(l.name)}</b> <span class="sc">${score(l).v}</span><div class="no">${esc(l.cat)} · ${esc(l.city)}</div><div class="row" style="margin-top:8px"><button class="btn sm p" data-a="open" data-id="${l.id}">Abrir perfil</button><button class="btn sm" data-a="mclose">Fechar</button></div>`}
 function mapData(){const f=mapFC(),r=mapRC(),st=$("#mapstat");if(st)st.textContent=f.features.length+" de "+L.length+" salvas com coordenadas"+(R&&R.items?" · "+r.features.length+" resultados da busca ainda não adicionados.":".");const s=mp&&mp.getSource("leads"),q=mp&&mp.getSource("res");if(s)s.setData(f);if(q)q.setData(r);mapCard();mapBar()}
 function mapFit(){const f=mapFC().features.concat(mapRC().features);if(!mp||!f.length)return;const b=new maplibregl.LngLatBounds();f.forEach(x=>b.extend(x.geometry.coordinates));mp.fitBounds(b,{padding:70,maxZoom:15,duration:matchMedia("(prefers-reduced-motion: reduce)").matches?0:600})}
 function mapMount(){const s=$("#mapslot");if(!s)return;
-if(mp){s.appendChild(mpEl);mp.resize();mapData();if(R&&R.items&&R!==mpFR){mpFR=R;mapFit()}return}
+if(mp){s.appendChild(mpEl);mp.resize();if(RD.cv)rdSize();mapData();if(R&&R.items&&R!==mpFR){mpFR=R;mapFit()}return}
 if(mpBusy)return;mpBusy=true;mapMsg("Carregando mapa…");
 Promise.all([mapKey(),mapLoad()]).then(([k])=>{if(!$("#mapslot"))return;
 mpEl=document.createElement("div");mpEl.id="mapel";$("#mapslot").appendChild(mpEl);
@@ -233,14 +257,18 @@ mp.addLayer({id:"pt",type:"circle",source:"leads",filter:["!",["has","point_coun
 mp.addSource('res',{type:'geojson',data:mapRC(),cluster:true,clusterRadius:48,clusterMaxZoom:13});
 mp.addLayer({id:'rcl',type:'circle',source:'res',filter:['has','point_count'],paint:{'circle-color':'rgba(255,255,255,.12)','circle-radius':['step',['get','point_count'],14,10,18,50,24],'circle-stroke-width':2,'circle-stroke-color':'#bbb'}});
 mp.addLayer({id:'rcn',type:'symbol',source:'res',filter:['has','point_count'],layout:{'text-field':['get','point_count_abbreviated'],'text-font':['Noto Sans Regular'],'text-size':12},paint:{'text-color':'#fff'}});
-mp.addLayer({id:'rpt',type:'circle',source:'res',filter:['!',['has','point_count']],paint:{'circle-color':'#ffffff','circle-radius':7,'circle-stroke-width':2,'circle-stroke-color':'#000'}});
+mp.addLayer({id:'rpt',type:'circle',source:'res',filter:['!',['has','point_count']],paint:{'circle-color':'#F4F4F5','circle-radius':5,'circle-stroke-width':3,'circle-stroke-color':'rgba(227,75,88,.45)'}});
 mp.on('click','rcl',e=>{const f=e.features[0];mp.getSource('res').getClusterExpansionZoom(f.properties.cluster_id).then(z=>mp.easeTo({center:f.geometry.coordinates,zoom:z}))});
 mp.on('click','rpt',e=>{mpSel='r:'+e.features[0].properties.i;mapCard()});
 ['rcl','rpt'].forEach(i=>{mp.on('mouseenter',i,()=>mp.getCanvas().style.cursor='pointer');mp.on('mouseleave',i,()=>mp.getCanvas().style.cursor='')});
 mp.addSource('sel',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
-mp.addLayer({id:'sel',type:'circle',source:'sel',paint:{'circle-radius':15,'circle-color':'rgba(255,255,255,0)','circle-stroke-width':2,'circle-stroke-color':'#fff'}});
+mp.addLayer({id:'sel',type:'circle',source:'sel',paint:{'circle-radius':15,'circle-color':'rgba(198,40,56,.2)','circle-stroke-width':2,'circle-stroke-color':'#E34B58'}});
+mp.addLayer({id:'selg',type:'circle',source:'sel',paint:{'circle-radius':58,'circle-color':'rgba(198,40,56,.10)','circle-blur':1}},'sel');
+mp.addLayer({id:'selc',type:'circle',source:'sel',paint:{'circle-radius':4.5,'circle-color':'#E34B58','circle-stroke-width':1.5,'circle-stroke-color':'#fff'}});
+mp.addSource('hov',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+mp.addLayer({id:'hov',type:'circle',source:'hov',paint:{'circle-radius':12,'circle-color':'rgba(255,255,255,.08)','circle-stroke-width':1.5,'circle-stroke-color':'rgba(255,255,255,.4)'}});
 const tip=document.createElement('div');tip.className='mtip';mpEl.appendChild(tip);
-mp.on('mousemove',e=>{const ls=['pt','rpt','poi'].filter(x=>mp.getLayer(x));const f=ls.length?mp.queryRenderedFeatures(e.point,{layers:ls})[0]:null;const n=f&&f.properties.name;if(n){tip.textContent=n;tip.style.display='block';tip.style.left=(e.point.x+12)+'px';tip.style.top=(e.point.y+12)+'px'}else tip.style.display='none'});
+mp.on('mousemove',e=>{const ls=['pt','rpt','poi'].filter(x=>mp.getLayer(x));const f=ls.length?mp.queryRenderedFeatures(e.point,{layers:ls})[0]:null;const n=f&&f.properties.name;hovSet(f);if(n){tip.textContent=n;tip.style.display='block';tip.style.left=(e.point.x+12)+'px';tip.style.top=(e.point.y+12)+'px'}else tip.style.display='none'});
 mp.on('mouseout',()=>{tip.style.display='none'});
 mp.on('moveend',e=>{if(!e.originalEvent&&!AR.ux)return;AR.ux=0;if(!AR.vis){AR.vis=1;snd('tick')}mapBar()});
 mp.on("click","cl",e=>{const f=e.features[0];mp.getSource("leads").getClusterExpansionZoom(f.properties.cluster_id).then(z=>mp.easeTo({center:f.geometry.coordinates,zoom:z}))});
@@ -250,7 +278,7 @@ mapData();mpFR=R;mapFit()})}).catch(e=>mapMsg(e.message)).finally(()=>{mpBusy=fa
 /* ---- Pesquisar nesta área (vidro + som sintetizado, sem arquivos de áudio) ---- */
 const AR={vis:0,busy:0,msg:'',err:0,ux:0,q:'',snd:ld('bl.snd','on')!=='off'};
 let AC=null;
-function snd(k){if(!AR.snd)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();const t=AC.currentTime,tone=(f0,f1,d,v,at)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(f0,t+at);o.frequency.exponentialRampToValueAtTime(f1,t+at+d);g.gain.setValueAtTime(0.0001,t+at);g.gain.exponentialRampToValueAtTime(v,t+at+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+at+d);o.connect(g);g.connect(AC.destination);o.start(t+at);o.stop(t+at+d+0.02)};
+function sndOld(k){if(!AR.snd)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();const t=AC.currentTime,tone=(f0,f1,d,v,at)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(f0,t+at);o.frequency.exponentialRampToValueAtTime(f1,t+at+d);g.gain.setValueAtTime(0.0001,t+at);g.gain.exponentialRampToValueAtTime(v,t+at+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+at+d);o.connect(g);g.connect(AC.destination);o.start(t+at);o.stop(t+at+d+0.02)};
 if(k==='tick')tone(520,780,.12,.05,0);else if(k==='go'){tone(400,1200,.28,.09,0);tone(1200,1800,.18,.05,.1)}else if(k==='ok'){tone(880,880,.18,.07,0);tone(1320,1320,.28,.07,.12);tone(1760,1760,.3,.04,.24)}else tone(300,200,.25,.07,0)}catch(x){}}
 function mapBar(){const b=$('#mbar');if(!b)return;let msg=AR.msg,n=0;
 if(!AR.busy&&!AR.err&&R&&R.where==='área do mapa'){n=mapRC().features.length;msg=!R.items.length?'Nada encontrado nesta área':n?n+' empresa(s) nova(s) nesta área':'Tudo desta área já está na sua base'}
@@ -259,19 +287,53 @@ const g=$('#mgo');g.classList.toggle('busy',!!AR.busy);g.disabled=!!AR.busy;$('#
 const q=$('#marq');if(q&&document.activeElement!==q)q.value=AR.q;
 $('#mres').textContent=msg;$('#mrow').style.display=msg?'flex':'none';
 const d=$('#madd');d.style.display=n>0&&!AR.busy?'inline-block':'none';d.textContent='Adicionar todas ('+n+')';
-$('#mradar').classList.toggle('on',!!AR.busy);$('.msnd').classList.toggle('off',!AR.snd)}
+$('#mradar').classList.toggle('on',!!AR.busy);$('.msnd').classList.toggle('off',!AR.snd);
+const hu=$('#mhud');if(hu){const ar=R&&R.where==='área do mapa',st=AR.busy?'Pesquisando':(AR.err&&AR.msg)?'Erro na pesquisa':ar?(R.items.length?'Pesquisa concluída':'Nenhum resultado'):'Aguardando pesquisa';hu.innerHTML='<div class="hs"><i class="hd'+(AR.busy?' on':'')+'"></i>'+st+'</div>'+(R&&R.city?'<div>Cidade<b>'+esc(R.city)+'</b></div>':'')+'<div>Segmento<b>'+esc(ar?R.q:(R&&R.q)||'—')+'</b></div><div>Encontradas<b>'+(R&&R.items?R.items.length:'—')+'</b></div><div>Fonte<b>OpenStreetMap</b></div>'}}
 async function mapArea(){if(!mp||AR.busy)return;
 if(mp.getZoom()<12){AR.err=1;AR.msg='Aproxime mais o mapa (nível de bairro) para pesquisar.';mapBar();snd('err');return}
-const b=mp.getBounds(),q=(AR.q||'').trim();AR.busy=1;AR.err=0;AR.msg='';mapBar();snd('go');
+const b=mp.getBounds(),q=(AR.q||'').trim();AR.busy=1;AR.err=0;AR.msg='';mapBar();snd('go');radarStart();
 try{const r=await fetch('/api/area?'+new URLSearchParams({s:b.getSouth().toFixed(5),w:b.getWest().toFixed(5),n:b.getNorth().toFixed(5),e:b.getEast().toFixed(5),q}));const j=await r.json().catch(()=>null);
 if(!r.ok||!j||!Array.isArray(j.items))throw new Error(j&&j.error?j.error:'A busca por área não respondeu (HTTP '+r.status+'). Ela só funciona no site da Vercel, com o arquivo api/area.js publicado.');
 j.items.forEach(o=>{o.city='';o.osm='https://www.openstreetmap.org/'+o.t+'/'+o.id});
 R={items:j.items,q:q||'empresas da área',where:'área do mapa',city:'',uf:''};mpFR=R;mapData();snd(mapRC().features.length?'ok':'err')}
 catch(e){AR.err=1;AR.msg=e.message==='Failed to fetch'?'Não foi possível chamar /api/area.':e.message;snd('err')}
-AR.busy=0;mapBar()}
+AR.busy=0;radarStop();mapBar()}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a;if(a==='marea')mapArea();else if(a==='msnd'){AR.snd=!AR.snd;try{localStorage.setItem('bl.snd',JSON.stringify(AR.snd?'on':'off'))}catch(x){}mapBar();snd('tick')}else if(a==='mzi'||a==='mzo')AR.ux=1});
 document.addEventListener('input',e=>{if(e.target.id==='marq')AR.q=e.target.value});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='marq')mapArea()});
+/* ---- AURORA: Resonance (áudio procedural), Radar (canvas ancorado ao mapa) ---- */
+const AU={ctx:null,m:null,mode:ld('bl.am','off'),vol:ld('bl.av',.5)},RM=matchMedia('(prefers-reduced-motion: reduce)');
+function auGain(){if(!AU.m)return;AU.m.gain.setTargetAtTime(AU.mode==='off'?0:AU.vol*(AU.mode==='full'?.9:.45),AU.ctx.currentTime,.05)}
+function auInit(){if(AU.ctx)return AU.ctx;const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;const c=new C(),g=c.createGain(),lp=c.createBiquadFilter(),cp=c.createDynamicsCompressor();lp.type='lowpass';lp.frequency.value=2600;cp.threshold.value=-20;cp.ratio.value=8;cp.attack.value=.005;cp.release.value=.3;g.gain.value=0;g.connect(lp);lp.connect(cp);cp.connect(c.destination);AU.ctx=c;AU.m=g;auGain();return c}
+function bass(t,f,d,a){const c=AU.ctx,g=c.createGain(),o=c.createOscillator(),h=c.createOscillator(),hg=c.createGain(),q=c.createOscillator(),qg=c.createGain();g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(a,t+.035);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.type='sine';o.frequency.setValueAtTime(f*1.12,t);o.frequency.exponentialRampToValueAtTime(f*.82,t+d*.85);h.type='triangle';h.frequency.setValueAtTime(f*2.2,t);h.frequency.exponentialRampToValueAtTime(f*1.8,t+d*.85);hg.gain.value=.32;q.type='sine';q.frequency.value=f*4.4;qg.gain.value=.1;o.connect(g);h.connect(hg);hg.connect(g);q.connect(qg);qg.connect(g);g.connect(AU.m);[o,h,q].forEach(x=>{x.start(t);x.stop(t+d+.05)})}
+function blip(t,f,d,a){const c=AU.ctx,o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*.6,t+d);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(a,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AU.m);o.start(t);o.stop(t+d+.02)}
+function swell(t){const c=AU.ctx,o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(70,t);o.frequency.exponentialRampToValueAtTime(190,t+.55);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.25,t+.5);g.gain.exponentialRampToValueAtTime(.0001,t+.7);o.connect(g);g.connect(AU.m);o.start(t);o.stop(t+.75)}
+function snd(k,at){if(AU.mode==='off')return;const c=auInit();if(!c)return;if(c.state==='suspended')c.resume();const t=Math.max(at||0,c.currentTime+.02);if(k==='pulse')bass(t,55,1.9,.9);else if(k==='go')swell(t);else if(k==='select'){bass(t,64,.6,.7);blip(t+.03,520,.12,.05)}else if(k==='ok'){blip(t,700,.09,.03);bass(t+.2,50,1,.35);blip(t+.3,330,.5,.04)}else if(k==='tick')blip(t,480,.08,.025);else if(k==='err')blip(t,220,.3,.05)}
+const RD={cv:null,x:null,w:[],on:0,raf:0,next:0,nd:-1,ctr:null,sel:'',dpr:1};
+function rdSize(){if(!RD.cv||!mpEl)return;const r=mpEl.getBoundingClientRect(),d=RD.dpr=Math.min(devicePixelRatio||1,2);RD.cv.width=Math.round(r.width*d);RD.cv.height=Math.round(r.height*d)}
+function rdInit(){if(RD.cv||!mpEl)return;const c=document.createElement('canvas');c.className='rdc';c.setAttribute('aria-hidden','true');mpEl.appendChild(c);RD.cv=c;RD.x=c.getContext('2d');rdSize();mp.on('resize',rdSize)}
+const rdNow=()=>AU.ctx&&AU.ctx.state==='running'&&AU.mode!=='off'?[AU.ctx.currentTime,1]:[performance.now()/1000,0];
+function rdPush(lng,lat,full,dur){const n=rdNow(),t0=n[0]+.06;RD.w.push({lng:lng,lat:lat,t0:t0,ac:n[1],dur:dur||2.1,full:full});rdLoop();snd(full?'pulse':'select',n[1]?t0:0)}
+function rdDraw(){const x=RD.x,c=RD.cv,d=RD.dpr;x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,c.width,c.height);const W=c.width/d,H=c.height/d,T=6.2832;
+RD.w=RD.w.filter(w=>{const now=w.ac?AU.ctx.currentTime:performance.now()/1000,k=(now-w.t0)/w.dur;if(k>=1)return false;if(k<0)return true;const p=mp.project([w.lng,w.lat]),mx=Math.hypot(Math.max(p.x,W-p.x),Math.max(p.y,H-p.y)),e=1-Math.pow(1-k,2.2),r=RM.matches?34+e*10:Math.max(2,e*mx*(w.full?1:.45)),a=Math.pow(1-k,1.5);
+const g=x.createRadialGradient(p.x,p.y,r*.55,p.x,p.y,r);g.addColorStop(0,'rgba(198,40,56,0)');g.addColorStop(.85,'rgba(198,40,56,'+.07*a+')');g.addColorStop(1,'rgba(227,75,88,'+.22*a+')');x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,r,0,T);x.fill();
+x.lineWidth=7;x.strokeStyle='rgba(198,40,56,'+.07*a+')';x.beginPath();x.arc(p.x,p.y,r,0,T);x.stroke();x.lineWidth=1.5;x.strokeStyle='rgba(227,75,88,'+.7*a+')';x.beginPath();x.arc(p.x,p.y,r,0,T);x.stroke();
+const ca=Math.max(0,1-k*2.2);if(ca>0){const cg=x.createRadialGradient(p.x,p.y,0,p.x,p.y,26);cg.addColorStop(0,'rgba(255,214,218,'+.9*ca+')');cg.addColorStop(.35,'rgba(227,75,88,'+.5*ca+')');cg.addColorStop(1,'rgba(198,40,56,0)');x.fillStyle=cg;x.beginPath();x.arc(p.x,p.y,26,0,T);x.fill()}
+if(!RM.matches&&k<.7&&W>760){x.fillStyle='rgba(255,170,178,'+.5*a+')';for(let i=0;i<14;i++){const th=i*.4488+w.t0*3.1,rr=r*(.96+.04*Math.sin(i*5.3));x.beginPath();x.arc(p.x+Math.cos(th)*rr,p.y+Math.sin(th)*rr,1.2,0,T);x.fill()}}return true})}
+function rdLoop(){if(RD.raf||!RD.cv)return;const f=()=>{RD.raf=0;if(document.hidden){RD.raf=requestAnimationFrame(f);return}if(RD.on){const n=rdNow();if(n[1]!==RD.nd){RD.nd=n[1];RD.next=0}if(n[0]>=RD.next){RD.next=n[0]+2.4;rdPush(RD.ctr.lng,RD.ctr.lat,1)}}rdDraw();if(RD.on||RD.w.length)RD.raf=requestAnimationFrame(f);else RD.x.clearRect(0,0,RD.cv.width,RD.cv.height)};RD.raf=requestAnimationFrame(f)}
+function radarStart(){if(!mp)return;rdInit();if(!RD.cv)return;RD.ctr=mp.getCenter();RD.next=0;RD.nd=-1;if(RM.matches){rdPush(RD.ctr.lng,RD.ctr.lat,1)}else{RD.on=1;rdLoop()}}
+function radarStop(){RD.on=0}
+function radarOnce(p){rdInit();if(RD.cv)rdPush(p[0],p[1],0,1.6)}
+let hvk='';function hovSet(f){const k=f?f.layer.id+'|'+(f.properties.id||f.properties.i||f.properties.name):'';if(k===hvk)return;hvk=k;const s=mp&&mp.getSource('hov');if(s)s.setData({type:'FeatureCollection',features:f?[{type:'Feature',geometry:f.geometry,properties:{}}]:[]})}
+function auUI(){let p=$('#aup');if(!p){p=document.createElement('div');p.id='aup';p.className='aup';p.setAttribute('role','dialog');p.setAttribute('aria-label','Áudio e efeitos');document.body.appendChild(p)}
+p.innerHTML='<b>Resonance</b><div class="no" style="margin:2px 0 10px">Efeitos graves gerados no seu navegador, sem arquivos de áudio.</div><div class="seg">'+[['off','Desligado'],['soft','Discreto'],['full','Imersivo']].map(m=>'<button data-a="aum" data-m="'+m[0]+'" class="'+(AU.mode===m[0]?'on':'')+'">'+m[1]+'</button>').join('')+'</div><label style="margin-top:12px">Volume</label><input id="auvol" type="range" min="0" max="1" step=".05" value="'+AU.vol+'" aria-label="Volume"><div class="row" style="margin-top:12px"><button class="btn sm" data-a="aud">Testar som</button><span class="no">'+(AU.mode==='off'?'Áudio desligado':'Áudio ativo')+'</span></div>';return p}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]'),a=t&&t.dataset.a,p=$('#aup');
+if(a==='aup'){auUI().classList.toggle('on');return}
+if(a==='aum'){AU.mode=t.dataset.m;try{localStorage.setItem('bl.am',JSON.stringify(AU.mode))}catch(x){}if(AU.mode!=='off'){auInit();if(AU.ctx&&AU.ctx.state==='suspended')AU.ctx.resume();auGain();snd('pulse')}else auGain();auUI();const b=$('.aubtn');if(b)b.classList.toggle('on',AU.mode!=='off');return}
+if(a==='aud'){if(AU.mode==='off')toast('Ative o áudio em Discreto ou Imersivo');else snd('pulse');return}
+if(p&&p.classList.contains('on')&&!e.target.closest('#aup'))p.classList.remove('on')});
+document.addEventListener('input',e=>{if(e.target.id==='auvol'){AU.vol=+e.target.value;try{localStorage.setItem('bl.av',JSON.stringify(AU.vol))}catch(x){}auGain()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const p=$('#aup');if(p)p.classList.remove('on')}});
 document.addEventListener('click',e=>{const t=e.target.closest('[data-a="padd"]');if(!t||!mpPoi)return;const n=add({name:mpPoi.name,cat:mpPoi.cat,city:'',uf:'',lat:mpPoi.lat,lng:mpPoi.lng,site:'nv',src:'OpenStreetMap (mapa)'});sv();mpSel=null;mpPoi=null;render();toast(n?'Empresa adicionada':'Já estava na sua base')});
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t||!mp)return;const a=t.dataset.a;if(a=="mzi")mp.zoomIn();else if(a=="mzo")mp.zoomOut();else if(a=="mfit")mapFit();else if(a=="mclose"){mpSel=null;mapCard()}});
 render();
