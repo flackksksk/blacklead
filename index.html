@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BLACKLEAD</title>
+<style>
+:root{--bg:#050505;--bg2:#0a0a0a;--bg3:#111;--fg:#fff;--mut:#8c8c8c;--sil:#c8c8c8;--ln:#242424;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 "Inter","Segoe UI",system-ui,sans-serif;min-height:100vh}
+#app{display:grid;grid-template-columns:208px minmax(0,1fr);min-height:100vh}
+#nav{position:sticky;top:0;height:100vh;padding:20px 12px;background:var(--bg2);border-right:1px solid var(--ln);display:flex;flex-direction:column;gap:6px}
+.logo{font-weight:300;letter-spacing:.14em;font-size:17px;padding:4px 10px 18px}.logo b{font-weight:700}
+#nav button{display:flex;gap:10px;align-items:center;background:none;border:1px solid transparent;color:var(--mut);padding:9px 10px;border-radius:10px;cursor:pointer;font:inherit;text-align:left;transition:.2s}
+#nav button:hover{color:var(--fg);background:var(--bg3)}#nav button.on{color:var(--fg);border-color:#444;background:var(--bg3)}
+#nav i{font-style:normal;width:18px;text-align:center}
+main{padding:26px clamp(14px,3vw,36px);min-width:0}
+h1{font-size:24px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em}h2{font-size:15px;font-weight:600;margin:0 0 12px}
+.sub{color:var(--mut);margin:0 0 22px;max-width:70ch}
+.glow{position:relative;border-radius:14px;background:rgba(17,17,17,.78);backdrop-filter:blur(8px)}
+.glow::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:conic-gradient(from var(--a),transparent 0 72%,#fff 92%,transparent);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 7s linear infinite}
+@property --a{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes spin{to{--a:360deg}}
+.card{position:relative;border:1px solid var(--ln);border-radius:14px;background:var(--bg3);padding:14px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:#777;transform:translateY(-1px)}
+.panel{padding:18px;margin-bottom:18px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.kpi b{display:block;font-size:28px;font-weight:600;letter-spacing:-.02em}.kpi span{color:var(--mut);font-size:12px}
+label{display:block;color:var(--mut);font-size:12px;margin-bottom:4px}
+input,select,textarea{width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--ln);border-radius:9px;padding:9px 10px;font:inherit}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid #fff;outline-offset:1px}
+textarea{min-height:110px;resize:vertical}
+.form{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end}
+.btn{background:var(--bg);color:var(--fg);border:1px solid #555;border-radius:10px;padding:9px 14px;cursor:pointer;font:inherit;transition:.2s}
+.btn:hover{border-color:#fff}.btn:active{transform:scale(.97)}
+.btn.p{background:#fff;color:#000;border-color:#fff;font-weight:600}.btn.sm{padding:5px 9px;font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border:1px solid #3a3a3a;border-radius:99px;color:var(--sil)}
+.sc{font-weight:700;font-size:13px;border:1px solid #fff;border-radius:8px;padding:1px 7px}
+.empty{text-align:center;color:var(--mut);padding:34px 14px;border:1px dashed #333;border-radius:14px}
+.bar{display:grid;grid-template-columns:140px 1fr 28px;gap:10px;align-items:center;margin:6px 0;font-size:12px;color:var(--sil)}
+.bar div{height:8px;background:#1a1a1a;border-radius:9px;overflow:hidden}.bar div i{display:block;height:100%;background:linear-gradient(90deg,#555,#fff);border-radius:9px;transition:width .5s}
+.board{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px}.col{min-width:220px;width:220px}.col h3{font-size:12px;color:var(--mut);margin:0 0 8px;font-weight:600}
+.col .card{margin-bottom:8px;cursor:pointer;padding:10px}
+#modal{position:fixed;inset:0;display:none;background:rgba(0,0,0,.75);z-index:20;overflow:auto;padding:max(14px,env(safe-area-inset-top)) 14px 14px}
+#modal.on{display:block}#modal .glow{max-width:680px;margin:20px auto;padding:20px;background:#0c0c0c;animation:pop .25s}
+@keyframes pop{from{opacity:0;transform:scale(.97)}}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#fff;color:#000;padding:9px 16px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:90vw}
+#toast.on{opacity:1}
+table{width:100%;border-collapse:collapse}td{padding:8px 6px;border-top:1px solid var(--ln);vertical-align:top}
+.ok{color:#fff}.no{color:var(--mut)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:#444}.dot.on{background:#fff;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.tablewrap{overflow-x:auto}
+@media(max-width:760px){#app{display:block}#nav{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;justify-content:space-around;z-index:10;border-right:0;border-top:1px solid var(--ln);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}.logo{display:none}#nav button span{display:none}main{padding-bottom:90px}.bar{grid-template-columns:100px 1fr 24px}}
+.mapwrap{position:relative;height:calc(100vh - 200px);min-height:420px;padding:0;overflow:hidden;backdrop-filter:none;background:#050505}.mapwrap::before{z-index:4}
+#mapel{position:absolute;inset:0;z-index:1}.maplibregl-map{position:relative;overflow:hidden}.maplibregl-canvas-container,.maplibregl-canvas{position:absolute;left:0;top:0}.maplibregl-canvas-container.maplibregl-interactive{cursor:grab;user-select:none}.maplibregl-canvas-container.maplibregl-touch-zoom-rotate,.maplibregl-canvas-container.maplibregl-touch-drag-pan{touch-action:pan-x pan-y}.maplibregl-control-container{display:none}
+.mctl{position:absolute;top:12px;right:12px;z-index:3;display:flex;flex-direction:column;gap:6px}.mcard{position:absolute;left:12px;bottom:12px;z-index:3;display:none;max-width:min(300px,calc(100% - 24px));background:rgba(10,10,10,.92);border:1px solid #fff;border-radius:12px;padding:12px}.mcred{position:absolute;right:8px;bottom:6px;z-index:3;font-size:10px;background:rgba(0,0,0,.6);padding:1px 6px;border-radius:6px}.mcred a{color:var(--sil)}.mmsg{position:absolute;inset:0;z-index:5;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;background:rgba(5,5,5,.94);color:var(--sil)}
+@media(prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+</style></head>
+<body>
+<div id="app"><nav id="nav"></nav><main id="main"></main></div>
+<div id="modal"></div><div id="toast"></div>
+<script>
+const ST=["Encontrada","Em análise","Qualificada","Primeiro contato","Aguardando resposta","Respondeu","Proposta enviada","Em negociação","Cliente conquistado","Perdida","Não contatar"];
+const SITE={sim:"Site confirmado",nao:"Site não localizado após pesquisa",nv:"Site não verificado",off:"Site aparentemente indisponível"};
+const W0={nao:35,nv:10,ig:10,rt:20,rv:15,ph:10};
+const WL={nao:"Site não localizado após pesquisa",nv:"Site não verificado ou indisponível",ig:"Sem Instagram identificado",rt:"Avaliação ≥ 4,3",rv:"30 avaliações ou mais",ph:"Telefone disponível para contato"};
+const $=s=>document.querySelector(s);
+function ld(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}}
+function sv(){try{localStorage.setItem("bl.leads",JSON.stringify(L));localStorage.setItem("bl.w",JSON.stringify(W))}catch(e){}}
+let L=ld("bl.leads",[]),W=Object.assign({},W0,ld("bl.w",{})),V="overview",Q=null,M=null,G={ch:"WhatsApp",sv:"Criação de site institucional",tn:"Natural",ob:"Primeiro contato",ln:"Médio"},DEL=false;
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const opt=(a,v)=>a.map(x=>`<option${x==v?" selected":""}>${esc(x)}</option>`).join("");
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2600)}
+function score(l){const p=[],a=(k,c)=>{if(c)p.push([WL[k],W[k]])};
+a("nao",l.site=="nao");a("nv",l.site=="nv"||l.site=="off");a("ig",!l.ig);a("rt",+l.rating>=4.3);a("rv",+l.reviews>=30);a("ph",!!l.phone);
+return{v:Math.min(100,p.reduce((s,x)=>s+x[1],0)),p}}
+const render=()=>{
+$("#nav").innerHTML='<div class="logo">BLACK<b>LEAD</b></div>'+[["overview","Overview","◉"],["empresas","Empresas","⌕"],["leads","Leads","▤"],["mapa","Mapa","◍"],["config","Configurações","⚙"]].map(([k,n,i])=>`<button data-a="go" data-k="${k}" class="${V==k?"on":""}"><i>${i}</i><span>${n}</span></button>`).join("");
+$("#main").innerHTML={overview,empresas,leads,mapa,config}[V]();if(V=="mapa")mapMount()};
+function overview(){
+const n=L.length,c=f=>L.filter(f).length,ct=c(l=>l.stage>=3&&l.stage<=8),cl=c(l=>l.stage==8);
+const K=[["Empresas cadastradas",n],["Sem site localizado",c(l=>l.site=="nao")],["Com site confirmado",c(l=>l.site=="sim")],["Presença digital fraca",c(l=>score(l).v>=60)],["Ainda não contatadas",c(l=>l.stage<=2)],["Já contatadas",ct],["Respostas recebidas",c(l=>l.stage>=5&&l.stage<=8)],["Propostas enviadas",c(l=>l.stage>=6&&l.stage<=8)],["Em negociação",c(l=>l.stage==7)],["Clientes conquistados",cl],["Conversão (clientes ÷ contatadas)",ct?Math.round(cl/ct*100)+"%":"—"]];
+let h='<h1>Overview</h1><p class="sub">Indicadores calculados apenas com as empresas que você cadastrou ou importou neste navegador.</p>';
+if(!n)return h+'<div class="empty glow" style="padding:40px"><h2>Nenhuma empresa cadastrada</h2>Comece em <b>Empresas</b>: cadastre uma empresa à mão ou importe um CSV. O dashboard se preenche sozinho.<div style="margin-top:14px"><button class="btn p" data-a="go" data-k="empresas">Cadastrar primeira empresa</button></div></div>';
+h+='<div class="grid">'+K.map(k=>`<div class="card kpi"><b>${k[1]}</b><span>${k[0]}</span></div>`).join("")+"</div>";
+const mx=Math.max(1,...ST.map((s,i)=>c(l=>l.stage==i)));
+h+='<div class="glow panel" style="margin-top:18px"><h2>Funil comercial</h2>'+ST.map((s,i)=>{const v=c(l=>l.stage==i);return`<div class="bar"><span>${s}</span><div><i style="width:${v/mx*100}%"></i></div><span>${v}</span></div>`}).join("")+"</div>";
+const top=[...L].sort((a,b)=>score(b).v-score(a).v).slice(0,5);
+h+='<div class="panel card"><h2>Oportunidades com maior pontuação</h2>'+top.map(l=>`<div class="row" style="justify-content:space-between;padding:6px 0;border-top:1px solid var(--ln)"><a href="#" data-a="open" data-id="${l.id}" style="color:#fff">${esc(l.name)}</a><span class="sc">${score(l).v}</span></div>`).join("")+"</div>";
+const fu=L.filter(l=>l.next).sort((a,b)=>a.next>b.next?1:-1).slice(0,5);
+if(fu.length)h+='<div class="panel card"><h2>Próximos follow-ups</h2>'+fu.map(l=>`<div class="row" style="justify-content:space-between;padding:6px 0;border-top:1px solid var(--ln)"><a href="#" data-a="open" data-id="${l.id}" style="color:#fff">${esc(l.name)}</a><span class="${l.next<new Date().toISOString().slice(0,10)?"ok":"no"}">${esc(l.next)}${l.next<new Date().toISOString().slice(0,10)?" · vencido":""}</span></div>`).join("")+"</div>";
+return h}
+function lcard(l){const s=score(l);return`<div class="card"><div class="row" style="justify-content:space-between"><b>${esc(l.name)}</b><span class="sc" title="Opportunity Score">${s.v}</span></div><div class="no">${esc(l.cat)||"Sem categoria"} · ${esc(l.city)}${l.uf?"/"+esc(l.uf):""}</div><div class="row" style="margin:8px 0"><span class="tag">${SITE[l.site]}</span>${l.rating?`<span class="tag">★ ${esc(l.rating)} (${esc(l.reviews||0)})</span>`:""}</div><div class="no">${esc(l.phone)||"Telefone não informado"}</div><div class="row" style="margin-top:10px"><button class="btn sm" data-a="open" data-id="${l.id}">Detalhes</button><button class="btn sm" data-a="fav" data-id="${l.id}">${l.fav?"★ Favorita":"☆ Favoritar"}</button></div></div>`}
+function empresas(){
+let res="";
+if(Q){const m=(a,b)=>!b||String(a).toLowerCase().includes(b.toLowerCase());const r=L.filter(l=>m(l.cat,Q.cat)&&m(l.city,Q.city)&&m(l.uf,Q.uf)&&(!Q.kw||m(l.name+" "+l.cat+" "+(l.notes||""),Q.kw)));
+res=`<div class="panel card"><h2>Resultados na sua base (${r.length})</h2><p class="no" style="margin-top:0">Nenhum provedor de dados externo está conectado (Google Places, OpenStreetMap, busca web). Por isso a pesquisa abaixo consulta só as empresas já salvas. Veja o que falta em Configurações.</p>${r.length?'<div class="cards">'+r.map(lcard).join("")+"</div>":'<div class="empty">Nenhuma empresa na base corresponde a esta pesquisa.</div>'}</div>`}
+const UF="AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split(" ");
+return`<h1>Encontrar empresas</h1><p class="sub">Pesquise na sua base ou cadastre empresas. Dados nunca são inventados: o que não foi verificado fica marcado como “não verificado”.</p>
+<form data-f="search" class="glow panel"><div class="form"><div><label>Tipo de empresa</label><input name="cat" placeholder="Ex.: pizzaria" value="${esc(Q&&Q.cat)}"></div><div><label>Cidade</label><input name="city" value="${esc(Q&&Q.city)}"></div><div><label>Estado</label><select name="uf"><option value="">Todos</option>${opt(UF,Q&&Q.uf)}</select></div><div><label>Palavra-chave</label><input name="kw" value="${esc(Q&&Q.kw)}"></div><button class="btn p">Pesquisar</button></div></form>${res}
+<form data-f="add" class="panel card"><h2>Cadastrar empresa</h2><div class="form"><div><label>Nome *</label><input name="name" required maxlength="120"></div><div><label>Categoria</label><input name="cat"></div><div><label>Cidade</label><input name="city"></div><div><label>UF</label><select name="uf"><option value="">—</option>${opt(UF)}</select></div><div><label>Telefone</label><input name="phone"></div><div><label>Site (URL)</label><input name="web" placeholder="https://"></div><div><label>Situação do site</label><select name="site"><option value="nv">Não verificado</option><option value="sim">Confirmado</option><option value="nao">Não localizado após pesquisa</option><option value="off">Aparentemente indisponível</option></select></div><div><label>Instagram</label><input name="ig"></div><div><label>Nota</label><input name="rating" type="number" step=".1" min="0" max="5"></div><div><label>Nº de avaliações</label><input name="reviews" type="number" min="0"></div><div><label>Latitude</label><input name="lat" type="number" step="any" min="-90" max="90" placeholder="-19.46"></div><div><label>Longitude</label><input name="lng" type="number" step="any" min="-180" max="180" placeholder="-44.24"></div><button class="btn p">Salvar empresa</button></div></form>
+<div class="panel card"><h2>Importar e exportar</h2><p class="no" style="margin-top:0">CSV com cabeçalho: nome, categoria, cidade, uf, telefone, site, instagram, nota, avaliacoes, latitude, longitude (as duas últimas alimentam o Mapa). Duplicatas (mesmo nome e cidade) são ignoradas e nada existente é sobrescrito.</p><div class="row"><input type="file" accept=".csv,text/csv" data-a="csv" style="max-width:280px"><button class="btn" data-a="exp">Exportar CSV</button></div></div>`}
+function leads(){
+if(!L.length)return'<h1>Leads</h1><div class="empty">Nenhum lead ainda. Cadastre empresas em Empresas.</div>';
+return'<h1>Leads</h1><p class="sub">Pipeline comercial. Abra um lead para mover de etapa, anotar, agendar retorno e gerar mensagem.</p><div class="board">'+ST.map((s,i)=>`<div class="col"><h3>${s} · ${L.filter(l=>l.stage==i).length}</h3>${L.filter(l=>l.stage==i).map(l=>`<div class="card" data-a="open" data-id="${l.id}"><b>${esc(l.name)}</b> <span class="sc">${score(l).v}</span><div class="no">${esc(l.city)}</div></div>`).join("")}</div>`).join("")+"</div>"}
+function config(){
+const I=[["Banco de dados","Navegador local (ativo)",1],["Google Places API","Não configurada",0],["OpenStreetMap / Overpass","Não configurada",0],["Provedor de mapas (MapLibre)","Não configurado",0],["Provedor de IA","Não configurado — mensagens usam modelos",0],["Pesquisa web","Não configurada",0]];
+return`<h1>Configurações</h1><p class="sub">Esta versão roda só no navegador, sem servidor. Chaves de API não podem ficar aqui; integrações reais exigem um backend com variáveis de ambiente.</p>
+<div class="glow panel"><h2>Integrações</h2><div class="tablewrap"><table>${I.map(i=>`<tr><td><span class="dot${i[2]?" on":""}"></span>${i[0]}</td><td class="no">${i[1]}</td></tr>`).join("")}</table></div></div>
+<div class="panel card"><h2>Pesos do Opportunity Score (soma máxima 100)</h2><div class="form">${Object.keys(W0).map(k=>`<div><label>${WL[k]}</label><input type="number" min="0" max="100" value="${W[k]}" data-w="${k}"></div>`).join("")}</div><p class="no">A pontuação indica potencial de abordagem a partir de sinais registrados. Não é probabilidade de fechamento.</p></div>
+<div class="panel card"><h2>Dados e privacidade</h2><p class="no" style="margin-top:0">Os dados ficam só neste navegador. Registre apenas dados comerciais públicos e respeite a LGPD e pedidos de não contato (etapa “Não contatar” bloqueia o WhatsApp). Isto não é aconselhamento jurídico.</p><div class="row"><button class="btn" data-a="bak">Baixar backup (JSON)</button><button class="btn" data-a="wipe">${DEL?"Confirmar exclusão de tudo":"Apagar todos os dados"}</button></div></div>`}
+function gen(l){
+const g=G,inf=/Informal/.test(g.tn),fm=/Profissional|Elegante|Consultivo/.test(g.tn);
+const sv={"Criação de site institucional":"criação de site institucional","Landing page":"criação de landing page","Cardápio digital":"cardápio digital","Reformulação de site":"reformulação de site","SEO local":"SEO local","Integração com WhatsApp":"integração do site com WhatsApp","Otimização de presença online":"otimização da presença online"}[g.sv]||g.sv.toLowerCase();
+const oi={"Primeiro contato":`Conheci a ${l.name}${l.city?" em "+l.city:""} durante uma pesquisa aqui na região`,"Retomar contato":`Estou retomando nosso contato sobre a ${l.name}`,"Enviar proposta":`Conforme conversamos, segue a proposta para a ${l.name}`,"Apresentar serviço":`Gostaria de apresentar um serviço para a ${l.name}`,"Identificar interesse":`Queria entender se a ${l.name} tem interesse em melhorar a presença online`,"Solicitar apresentação":`Gostaria de uma oportunidade para apresentar uma ideia à ${l.name}`}[g.ob]||`Conheci a ${l.name}`;
+let t=(fm?"Olá, tudo bem?":inf?"Oi! Tudo certo?":"Olá! Tudo bem?")+" "+oi+".";
+if(g.ln!="Curto"){if(l.site=="nao")t+=" Não localizei um site próprio da empresa na minha pesquisa.";if(+l.rating>=4.3&&+l.reviews)t+=` A avaliação ${String(l.rating).replace(".",",")} de vocês mostra o cuidado com os clientes.`}
+t+=` Trabalho com ${sv} e gostaria de mostrar uma ideia que pode ajudar a empresa a alcançar mais pessoas.`;
+if(g.ln=="Detalhado")t+=" Posso enviar um exemplo e conversar sobre prazos e valores, sem compromisso.";
+t+=g.ob=="Enviar proposta"?" Fico à disposição para ajustes.":" Posso apresentar rapidamente?";
+return t}
+function openM(id){M=id;const l=L.find(x=>x.id==id);if(!l)return;const s=score(l);
+const S=(k,a)=>`<div><label>${k[1]}</label><select data-g="${k[0]}">${opt(a,G[k[0]])}</select></div>`;
+$("#modal").innerHTML=`<div class="glow"><div class="row" style="justify-content:space-between"><h1 style="font-size:20px">${esc(l.name)}</h1><button class="btn sm" data-a="close">Fechar</button></div>
+<div class="no">${esc(l.cat)} · ${esc(l.city)}${l.uf?"/"+esc(l.uf):""} · ${esc(l.phone)||"sem telefone"}</div>
+<div class="row" style="margin:8px 0"><span class="tag">${SITE[l.site]}</span>${l.web?`<a class="tag" style="color:#fff" href="${esc(/^https?:\/\//i.test(l.web)?l.web:"#")}" target="_blank" rel="noopener noreferrer">${esc(l.web)}</a>`:""}${l.ig?`<span class="tag">${esc(l.ig)}</span>`:""}<span class="tag">Fonte: cadastro manual/CSV</span></div>
+<h2>Opportunity Score: ${s.v}/100</h2>${s.p.map(x=>`<div class="bar" style="grid-template-columns:1fr 40px"><span>${esc(x[0])}</span><span>+${x[1]}</span></div>`).join("")||'<div class="no">Nenhum sinal pontuado.</div>'}
+<div class="form" style="margin:14px 0"><div><label>Etapa</label><select data-p="stage">${ST.map((x,i)=>`<option value="${i}"${i==l.stage?" selected":""}>${x}</option>`).join("")}</select></div><div><label>Situação do site</label><select data-p="site">${Object.keys(SITE).map(k=>`<option value="${k}"${k==l.site?" selected":""}>${SITE[k]}</option>`).join("")}</select></div><div><label>Próximo contato</label><input type="date" data-p="next" value="${esc(l.next||"")}"></div><div><label>Latitude</label><input type="number" step="any" data-p="lat" value="${esc(l.lat||"")}"></div><div><label>Longitude</label><input type="number" step="any" data-p="lng" value="${esc(l.lng||"")}"></div></div>
+<label>Observações</label><textarea data-p="notes" style="min-height:70px">${esc(l.notes||"")}</textarea>
+<h2 style="margin-top:16px">Mensagem (modelos, sem IA conectada)</h2><div class="form">${S(["ch","Canal"],["WhatsApp","E-mail","Instagram"])}${S(["sv","Serviço"],["Criação de site institucional","Landing page","Cardápio digital","Reformulação de site","SEO local","Integração com WhatsApp","Otimização de presença online"])}${S(["tn","Estilo"],["Natural","Profissional","Consultivo","Objetivo","Informal","Elegante"])}${S(["ob","Objetivo"],["Primeiro contato","Apresentar serviço","Identificar interesse","Solicitar apresentação","Retomar contato","Enviar proposta"])}${S(["ln","Tamanho"],["Curto","Médio","Detalhado"])}</div>
+<textarea id="gt" style="margin-top:10px">${esc(gen(l))}</textarea>
+<div class="row" style="margin-top:10px"><button class="btn p" data-a="wa" data-id="${l.id}">Abrir no WhatsApp</button><button class="btn" data-a="copy">Copiar</button><button class="btn" data-a="fav" data-id="${l.id}">${l.fav?"★ Favorita":"☆ Favoritar"}</button><button class="btn" data-a="del" data-id="${l.id}">Excluir lead</button></div>
+<p class="no">Você revisa e envia manualmente. Nenhuma mensagem é enviada automaticamente.</p></div>`;$("#modal").classList.add("on")}
+function csvRows(t){const r=[];let row=[],f="",q=0;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'&&t[i+1]=='"'){f+='"';i++}else if(c=='"')q=0;else f+=c}else if(c=='"')q=1;else if(c==","||c==";"){row.push(f);f=""}else if(c=="\n"){row.push(f);r.push(row);row=[];f=""}else if(c!="\r")f+=c}row.push(f);r.push(row);return r.filter(x=>x.join("").trim())}
+const key=l=>(l.name+"|"+l.city).toLowerCase().trim();
+function add(o){if(!o.name||!o.name.trim())return 0;if(L.some(x=>key(x)==key(o)))return 0;L.push(Object.assign({id:Date.now()+Math.random().toString(36).slice(2,6),stage:0,site:"nv",fav:false,created:new Date().toISOString()},o));return 1}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a,id=t.dataset.id,l=L.find(x=>x.id==id);
+if(a=="go"){e.preventDefault();V=t.dataset.k;render();scrollTo(0,0)}
+else if(a=="open"){e.preventDefault();openM(id)}
+else if(a=="close"){$("#modal").classList.remove("on");M=null;render()}
+else if(a=="fav"&&l){l.fav=!l.fav;sv();render();if(M)openM(M)}
+else if(a=="copy"){navigator.clipboard.writeText($("#gt").value).then(()=>toast("Mensagem copiada"),()=>toast("Não foi possível copiar"))}
+else if(a=="wa"&&l){if(l.stage==10)return toast("Lead marcado como “Não contatar”");let d=(l.phone||"").replace(/\D/g,"");if(d.length<10)return toast("Sem telefone utilizável neste cadastro");if(d.length<=11)d="55"+d;open("https://wa.me/"+d+"?text="+encodeURIComponent($("#gt").value),"_blank","noopener")}
+else if(a=="del"&&l){L=L.filter(x=>x.id!=id);sv();$("#modal").classList.remove("on");render();toast("Lead excluído")}
+else if(a=="exp"||a=="bak"){const c=a=="bak"?JSON.stringify({leads:L,pesos:W},null,1):"nome,categoria,cidade,uf,telefone,site,instagram,nota,avaliacoes,latitude,longitude,etapa,score\n"+L.map(l=>[l.name,l.cat,l.city,l.uf,l.phone,l.web,l.ig,l.rating,l.reviews,l.lat,l.lng,ST[l.stage],score(l).v].map(v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"').join(",")).join("\n");const b=new Blob([c],{type:"text/plain"}),u=URL.createObjectURL(b),x=document.createElement("a");x.href=u;x.download=a=="bak"?"blacklead-backup.json":"blacklead-leads.csv";x.click();setTimeout(()=>URL.revokeObjectURL(u),500)}
+else if(a=="wipe"){if(!DEL){DEL=true;render();return}L=[];DEL=false;sv();render();toast("Dados apagados")}
+});
+document.addEventListener("submit",e=>{e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f));
+if(f.dataset.f=="search"){Q=d;render()}
+else if(f.dataset.f=="add"){const w=d.web.trim();if(w&&!/^https?:\/\//i.test(w))return toast("A URL do site deve começar com http:// ou https://");const ok=add({name:d.name.trim(),cat:d.cat,city:d.city,uf:d.uf,phone:d.phone,web:w,ig:d.ig,site:w&&d.site=="nv"?"sim":d.site,rating:d.rating,reviews:d.reviews,lat:d.lat,lng:d.lng});sv();toast(ok?"Empresa salva":"Empresa já cadastrada (mesmo nome e cidade)");if(ok){f.reset();render()}}});
+document.addEventListener("change",e=>{const t=e.target;
+if(t.dataset.a=="csv"&&t.files[0]){const r=new FileReader();r.onload=()=>{const R=csvRows(String(r.result)),H=R.shift().map(x=>x.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""));const g=(row,...ns)=>{for(const n of ns){const i=H.indexOf(n);if(i>=0)return(row[i]||"").trim()}return""};let ok=0;R.forEach(row=>{const w=g(row,"site");ok+=add({name:g(row,"nome","name"),cat:g(row,"categoria"),city:g(row,"cidade"),uf:g(row,"uf","estado"),phone:g(row,"telefone"),web:/^https?:\/\//i.test(w)?w:"",site:/^https?:\/\//i.test(w)?"sim":"nv",ig:g(row,"instagram"),rating:g(row,"nota"),reviews:g(row,"avaliacoes"),lat:g(row,"latitude","lat"),lng:g(row,"longitude","lng","lon")})});sv();render();toast(`${ok} importadas, ${R.length-ok} ignoradas (duplicadas ou sem nome)`)};r.readAsText(t.files[0])}
+else if(t.dataset.w){W[t.dataset.w]=Math.max(0,Math.min(100,+t.value||0));sv();toast("Peso atualizado")}
+else if(t.dataset.g){G[t.dataset.g]=t.value;const l=L.find(x=>x.id==M);if(l)$("#gt").value=gen(l)}
+else if(t.dataset.p){const l=L.find(x=>x.id==M);if(!l)return;l[t.dataset.p]=t.dataset.p=="stage"?+t.value:t.value;if(t.dataset.p=="stage"&&l.stage>=3&&l.stage<=8)l.last=new Date().toISOString().slice(0,10);sv();const s=$("#modal").scrollTop;openM(M);$("#modal").scrollTop=s;toast("Alteração salva")}});
+/* ---- Mapa: MapLibre GL JS + MapTiler (a chave vem de /api/config, nunca deste arquivo) ---- */
+const MAP={ver:"4.7.1",style:"dataviz-dark",styleUrl:k=>`https://api.maptiler.com/maps/${MAP.style}/style.json?key=${encodeURIComponent(k)}`,credit:'<a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>'};
+let mp=null,mpEl=null,mpBusy=false,mpSel=null;
+const hasXY=l=>l.lat!=null&&l.lng!=null&&l.lat!==""&&l.lng!==""&&isFinite(+l.lat)&&isFinite(+l.lng)&&Math.abs(+l.lat)<=90&&Math.abs(+l.lng)<=180;
+function mapa(){return`<h1>Mapa</h1><p class="sub">Empresas com latitude e longitude aparecem aqui. <span id="mapstat"></span></p><div id="mapslot" class="glow mapwrap"><div id="mapmsg" class="mmsg"></div><div class="mctl"><button class="btn sm" data-a="mzi" aria-label="Aproximar">+</button><button class="btn sm" data-a="mzo" aria-label="Afastar">−</button><button class="btn sm" data-a="mfit">Ajustar</button></div><div id="mapcard" class="mcard"></div><div class="mcred">${MAP.credit}</div></div>`}
+function mapMsg(t){const m=$("#mapmsg");if(m){m.textContent=t;m.style.display=t?"flex":"none"}}
+function mapFC(){return{type:"FeatureCollection",features:L.filter(hasXY).map(l=>({type:"Feature",geometry:{type:"Point",coordinates:[+l.lng,+l.lat]},properties:{id:l.id,s:score(l).v,fav:l.fav?1:0}}))}}
+function mapLoad(){return window.maplibregl?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/maplibre-gl@"+MAP.ver+"/dist/maplibre-gl.js";s.onload=ok;s.onerror=()=>no(new Error("Não foi possível carregar o MapLibre GL JS."));document.head.appendChild(s)})}
+async function mapKey(){let r;try{r=await fetch("/api/config",{headers:{accept:"application/json"}})}catch(e){throw new Error("Não foi possível consultar /api/config. Publique o projeto na Vercel com a pasta api/.")}
+if(!r.ok)throw new Error("/api/config respondeu HTTP "+r.status+". Publique o projeto na Vercel com a pasta api/.");
+const j=await r.json().catch(()=>null);if(!j)throw new Error("/api/config não retornou JSON. Publique o projeto na Vercel com a pasta api/.");
+if(!j.maptilerKey)throw new Error("A variável de ambiente MAPTILER_API_KEY não está definida no servidor.");return j.maptilerKey}
+function mapCard(){const c=$("#mapcard");if(!c)return;const l=L.find(x=>x.id==mpSel);if(!l){c.style.display="none";return}c.style.display="block";c.innerHTML=`<b>${esc(l.name)}</b> <span class="sc">${score(l).v}</span><div class="no">${esc(l.cat)} · ${esc(l.city)}</div><div class="row" style="margin-top:8px"><button class="btn sm p" data-a="open" data-id="${l.id}">Abrir perfil</button><button class="btn sm" data-a="mclose">Fechar</button></div>`}
+function mapData(){const f=mapFC(),st=$("#mapstat");if(st)st.textContent=f.features.length+" de "+L.length+" empresas com coordenadas.";const s=mp&&mp.getSource("leads");if(s)s.setData(f);mapCard()}
+function mapFit(){const f=mapFC().features;if(!mp||!f.length)return;const b=new maplibregl.LngLatBounds();f.forEach(x=>b.extend(x.geometry.coordinates));mp.fitBounds(b,{padding:70,maxZoom:15,duration:matchMedia("(prefers-reduced-motion: reduce)").matches?0:600})}
+function mapMount(){const s=$("#mapslot");if(!s)return;
+if(mp){s.appendChild(mpEl);mp.resize();mapData();return}
+if(mpBusy)return;mpBusy=true;mapMsg("Carregando mapa…");
+Promise.all([mapKey(),mapLoad()]).then(([k])=>{if(!$("#mapslot"))return;
+mpEl=document.createElement("div");mpEl.id="mapel";$("#mapslot").appendChild(mpEl);
+mp=new maplibregl.Map({container:mpEl,style:MAP.styleUrl(k),center:[-52,-14],zoom:3.4,attributionControl:false,maxPitch:0,dragRotate:false,renderWorldCopies:false});
+mp.touchZoomRotate.disableRotation();
+mp.on("error",e=>{const t=e&&e.error&&e.error.status;if(t==401||t==403)mapMsg("O MapTiler recusou a chave (HTTP "+t+"). Confira MAPTILER_API_KEY e as origens permitidas no painel do MapTiler.")});
+mp.on("load",()=>{mapMsg("");
+mp.addSource("leads",{type:"geojson",data:mapFC(),cluster:true,clusterRadius:48,clusterMaxZoom:13});
+mp.addLayer({id:"cl",type:"circle",source:"leads",filter:["has","point_count"],paint:{"circle-color":"#fff","circle-radius":["step",["get","point_count"],14,10,18,50,24],"circle-stroke-width":6,"circle-stroke-color":"rgba(255,255,255,.2)"}});
+mp.addLayer({id:"cn",type:"symbol",source:"leads",filter:["has","point_count"],layout:{"text-field":["get","point_count_abbreviated"],"text-font":["Noto Sans Regular"],"text-size":12},paint:{"text-color":"#000"}});
+mp.addLayer({id:"pt",type:"circle",source:"leads",filter:["!",["has","point_count"]],paint:{"circle-color":["case",["==",["get","fav"],1],"#fff","#0a0a0a"],"circle-radius":["interpolate",["linear"],["get","s"],0,5,100,11],"circle-stroke-width":2,"circle-stroke-color":"#fff"}});
+mp.on("click","cl",e=>{const f=e.features[0];mp.getSource("leads").getClusterExpansionZoom(f.properties.cluster_id).then(z=>mp.easeTo({center:f.geometry.coordinates,zoom:z}))});
+mp.on("click","pt",e=>{mpSel=e.features[0].properties.id;mapCard()});
+["cl","pt"].forEach(i=>{mp.on("mouseenter",i,()=>mp.getCanvas().style.cursor="pointer");mp.on("mouseleave",i,()=>mp.getCanvas().style.cursor="")});
+mapData();mapFit()})}).catch(e=>mapMsg(e.message)).finally(()=>{mpBusy=false})}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t||!mp)return;const a=t.dataset.a;if(a=="mzi")mp.zoomIn();else if(a=="mzo")mp.zoomOut();else if(a=="mfit")mapFit();else if(a=="mclose"){mpSel=null;mapCard()}});
+render();
+</script></body></html>
