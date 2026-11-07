@@ -32,11 +32,13 @@ function rx(s) {
   if (n.length > 4) n = n.replace(/s$/, "");
   return n.split("").map((c) => (CLS[c] ? "[" + CLS[c] + "]" : c)).join("");
 }
+const KEYS = ["amenity", "shop", "office", "craft", "tourism", "leisure", "healthcare"];
 function buildQuery(term, areaId, limit) {
   const n = norm(term).trim();
   const tags = (CATS.find(([r]) => r.test(n)) || [, []])[1];
-  const parts = ['nwr["name"~"' + rx(term) + '",i](area.a);'].concat(tags.map((f) => "nwr" + f + '["name"](area.a);'));
-  return "[out:json][timeout:25];area(" + (3600000000 + areaId) + ")->.a;(" + parts.join("") + ");out tags center " + limit + ";";
+  const re = rx(term);
+  const parts = KEYS.map((k) => 'nwr["' + k + '"]["name"~"' + re + '",i](area.a);').concat(tags.map((f) => "nwr" + f + '["name"](area.a);'));
+  return "[out:json][timeout:12];area(" + (3600000000 + areaId) + ")->.a;(" + parts.join("") + ");out tags center " + limit + ";";
 }
 const hits = new Map();
 function limited(ip) {
@@ -45,8 +47,11 @@ function limited(ip) {
   if (hits.size > 500) for (const [k, v] of hits) if (!v.some((t) => now - t < 60000)) hits.delete(k);
   return arr.length > 10;
 }
-async function getJson(url, opt) {
-  const r = await fetch(url, Object.assign({ signal: AbortSignal.timeout(25000) }, opt));
+const DEADLINE = 30000;
+async function getJson(url, opt, cap, t0) {
+  const ms = Math.min(cap, DEADLINE - (Date.now() - t0));
+  if (ms < 1500) throw new Error("tempo esgotado");
+  const r = await fetch(url, Object.assign({ signal: AbortSignal.timeout(ms) }, opt));
   if (!r.ok) throw new Error("HTTP " + r.status);
   return r.json();
 }
@@ -57,20 +62,23 @@ module.exports = async (req, res) => {
   if (limited(ip)) return res.status(429).json({ error: "Muitas buscas seguidas. Aguarde um minuto." });
   const q = String(req.query.q || "").trim(), city = String(req.query.city || "").trim(), uf = String(req.query.uf || "").toUpperCase();
   if (!OK.test(q) || !OK.test(city) || (uf && !UFS.has(uf))) return res.status(400).json({ error: "Pesquisa inválida. Use de 2 a 60 letras ou números." });
+  const t0 = Date.now();
+  let step = "cidade";
   try {
-    const nom = await getJson("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=br&q=" + encodeURIComponent(city + (uf ? ", " + uf : "") + ", Brasil"), { headers: { "User-Agent": UA, "Accept-Language": "pt-BR" } });
+    const nom = await getJson("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=br&q=" + encodeURIComponent(city + (uf ? ", " + uf : "") + ", Brasil"), { headers: { "User-Agent": UA, "Accept-Language": "pt-BR" } }, 7000, t0);
     const place = nom.find((p) => p.osm_type === "relation" && p.category === "boundary");
     if (!place) return res.status(404).json({ error: "Não encontrei o limite da cidade “" + city + "”. Confira o nome e o estado." });
     const ql = buildQuery(q, Number(place.osm_id), 60);
-    let data = null;
+    step = "empresas";
+    let data = null, lastErr = "sem resposta";
     for (const ep of OVERPASS) {
       try {
-        const j = await getJson(ep, { method: "POST", headers: { "User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(ql) });
-        if (j.remark && !(j.elements || []).length) continue;
+        const j = await getJson(ep, { method: "POST", headers: { "User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(ql) }, 16000, t0);
+        if (j.remark && !(j.elements || []).length) { lastErr = "servidor sobrecarregado"; continue; }
         data = j; break;
-      } catch (e) { /* tenta o próximo servidor */ }
+      } catch (e) { lastErr = e.name === "TimeoutError" ? "tempo esgotado" : e.message; }
     }
-    if (!data) return res.status(502).json({ error: "O servidor do OpenStreetMap está ocupado. Tente de novo em instantes." });
+    if (!data) return res.status(502).json({ error: "O OpenStreetMap não respondeu a tempo (" + lastErr + "). Tente de novo em instantes ou use um termo mais específico." });
     const seen = new Set(), items = [];
     for (const el of data.elements || []) {
       const t = el.tags || {}, c = el.center || { lat: el.lat, lon: el.lon };
@@ -89,6 +97,4 @@ module.exports = async (req, res) => {
     res.setHeader("Cache-Control", "public, s-maxage=21600, stale-while-revalidate=604800");
     return res.status(200).json({ items });
   } catch (e) {
-    return res.status(502).json({ error: "Não foi possível consultar o OpenStreetMap agora. Tente de novo em instantes." });
-  }
-};
+    return res.status(502).json({ error: "Falha na etapa “" + step + "”:
