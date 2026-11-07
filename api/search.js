@@ -97,4 +97,6 @@ module.exports = async (req, res) => {
     res.setHeader("Cache-Control", "public, s-maxage=21600, stale-while-revalidate=604800");
     return res.status(200).json({ items });
   } catch (e) {
-    return res.status(502).json({ error: "Falha na etapa “" + step + "”:
+           return res.status(502).json({ error: "Falha na etapa “" + step + "”: " + (e.name === "TimeoutError" ? "tempo esgotado" : e.message) + ". Tente de novo em instantes." });
+     }
+   };
