@@ -1,10 +1,10 @@
-// Busca de empresas por palavra-chave e cidade no OpenStreetMap (Nominatim + Overpass).
+// Busca de empresas por palavra-chave e cidade no OpenStreetMap (Overpass + Nominatim como plano B).
 // Gratuito e sem chave. Uso educado dos servidores comunitários: cache, limite por IP e User-Agent identificado.
 // Opcional: defina OSM_CONTACT (e-mail ou site) na Vercel para identificar sua ferramenta no User-Agent.
 const UFS = new Set("AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split(" "));
 const UA = "BLACKLEAD/1.0 (" + (process.env.OSM_CONTACT || "ferramenta pessoal de prospecção") + ")";
 const OK = /^[\p{L}\p{N} '\-]{2,60}$/u;
-const OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
+const OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
 const norm = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const CLS = { a: "aáàâãä", e: "eéèêë", i: "iíìîï", o: "oóòôõö", u: "uúùûü", c: "cç", n: "nñ" };
 const CATS = [
@@ -48,13 +48,33 @@ function limited(ip) {
   return arr.length > 10;
 }
 const DEADLINE = 30000;
-async function getJson(url, opt, cap, t0) {
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function getJson(url, opt, cap, t0, ctrl) {
   const ms = Math.min(cap, DEADLINE - (Date.now() - t0));
   if (ms < 1500) throw new Error("tempo esgotado");
-  const r = await fetch(url, Object.assign({ signal: AbortSignal.timeout(ms) }, opt));
+  const tmo = AbortSignal.timeout(ms);
+  const signal = ctrl && AbortSignal.any ? AbortSignal.any([tmo, ctrl.signal]) : tmo;
+  const r = await fetch(url, Object.assign({ signal }, opt));
   if (!r.ok) throw new Error("HTTP " + r.status);
   return r.json();
 }
+function toItem(type, id, t, lat, lon) {
+  if (!t.name || lat == null || lon == null || !["node", "way", "relation"].includes(type) || !Number.isInteger(id)) return null;
+  return {
+    t: type, id: id, name: String(t.name).slice(0, 120), cat: label(t),
+    addr: [(t["addr:street"] || "") + (t["addr:housenumber"] ? ", " + t["addr:housenumber"] : ""), t["addr:suburb"]].filter(Boolean).join(" - ").slice(0, 160),
+    phone: String(t.phone || t["contact:phone"] || t["contact:mobile"] || "").split(";")[0].trim().slice(0, 40),
+    web: String(t.website || t["contact:website"] || "").slice(0, 200),
+    ig: String(t["contact:instagram"] || "").slice(0, 80),
+    lat: +lat, lng: +lon,
+  };
+}
+const overpassItems = (d) => (d.elements || []).map((el) => { const c = el.center || { lat: el.lat, lon: el.lon }; return toItem(el.type, el.id, el.tags || {}, c.lat, c.lon); });
+const nominatimItems = (list) => list.filter((p) => KEYS.includes(p.category)).map((p) => {
+  const a = p.address || {}, t = Object.assign({}, p.extratags || {});
+  t.name = p.name; t[p.category] = p.type; t["addr:street"] = a.road; t["addr:housenumber"] = a.house_number; t["addr:suburb"] = a.suburb || a.neighbourhood;
+  return toItem(p.osm_type, p.osm_id, t, p.lat, p.lon);
+});
 module.exports = async (req, res) => {
   const site = req.headers["sec-fetch-site"];
   if (req.method !== "GET" || (site && site !== "same-origin" && site !== "none")) return res.status(403).json({ error: "Acesso negado." });
@@ -62,41 +82,46 @@ module.exports = async (req, res) => {
   if (limited(ip)) return res.status(429).json({ error: "Muitas buscas seguidas. Aguarde um minuto." });
   const q = String(req.query.q || "").trim(), city = String(req.query.city || "").trim(), uf = String(req.query.uf || "").toUpperCase();
   if (!OK.test(q) || !OK.test(city) || (uf && !UFS.has(uf))) return res.status(400).json({ error: "Pesquisa inválida. Use de 2 a 60 letras ou números." });
-  const t0 = Date.now();
+  const t0 = Date.now(), hd = { headers: { "User-Agent": UA, "Accept-Language": "pt-BR" } };
   let step = "cidade";
   try {
-    const nom = await getJson("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=br&q=" + encodeURIComponent(city + (uf ? ", " + uf : "") + ", Brasil"), { headers: { "User-Agent": UA, "Accept-Language": "pt-BR" } }, 7000, t0);
+    const nom = await getJson("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=br&q=" + encodeURIComponent(city + (uf ? ", " + uf : "") + ", Brasil"), hd, 7000, t0);
     const place = nom.find((p) => p.osm_type === "relation" && p.category === "boundary");
     if (!place) return res.status(404).json({ error: "Não encontrei o limite da cidade “" + city + "”. Confira o nome e o estado." });
-    const ql = buildQuery(q, Number(place.osm_id), 60);
     step = "empresas";
-    let data = null, lastErr = "sem resposta";
-    for (const ep of OVERPASS) {
-      try {
-        const j = await getJson(ep, { method: "POST", headers: { "User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(ql) }, 16000, t0);
-        if (j.remark && !(j.elements || []).length) { lastErr = "servidor sobrecarregado"; continue; }
-        data = j; break;
-      } catch (e) { lastErr = e.name === "TimeoutError" ? "tempo esgotado" : e.message; }
+    let list = null, why = "sem resposta";
+    try {
+      const ql = buildQuery(q, Number(place.osm_id), 60), ctrl = new AbortController();
+      const post = { method: "POST", headers: { "User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(ql) };
+      const data = await Promise.any(OVERPASS.map((ep) => getJson(ep, post, 14000, t0, ctrl).then((j) => {
+        if (j.remark && !(j.elements || []).length) throw new Error("servidor sobrecarregado");
+        return j;
+      })));
+      ctrl.abort();
+      list = overpassItems(data);
+    } catch (e) {
+      const x = e.errors && e.errors[0] ? e.errors[0] : e;
+      why = x.name === "TimeoutError" ? "tempo esgotado" : x.message;
     }
-    if (!data) return res.status(502).json({ error: "O OpenStreetMap não respondeu a tempo (" + lastErr + "). Tente de novo em instantes ou use um termo mais específico." });
+    if (!list || !list.length) {
+      try {
+        await sleep(1000);
+        const b = place.boundingbox;
+        const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=40&extratags=1&addressdetails=1&bounded=1&countrycodes=br&viewbox=" + [b[2], b[1], b[3], b[0]].join(",") + "&q=" + encodeURIComponent(q);
+        list = (list || []).concat(nominatimItems(await getJson(url, hd, 8000, t0)));
+      } catch (e2) {
+        if (!list) return res.status(502).json({ error: "Nem o Overpass (" + why + ") nem o Nominatim responderam a tempo. Tente de novo em instantes." });
+      }
+    }
     const seen = new Set(), items = [];
-    for (const el of data.elements || []) {
-      const t = el.tags || {}, c = el.center || { lat: el.lat, lon: el.lon };
-      if (!t.name || c.lat == null || !["node", "way", "relation"].includes(el.type) || !Number.isInteger(el.id)) continue;
-      const k = norm(t.name) + "|" + c.lat.toFixed(3) + "|" + c.lon.toFixed(3);
-      if (seen.has(k)) continue; seen.add(k);
-      items.push({
-        t: el.type, id: el.id, name: t.name.slice(0, 120), cat: label(t),
-        addr: [(t["addr:street"] || "") + (t["addr:housenumber"] ? ", " + t["addr:housenumber"] : ""), t["addr:suburb"]].filter(Boolean).join(" - ").slice(0, 160),
-        phone: String(t.phone || t["contact:phone"] || t["contact:mobile"] || "").split(";")[0].trim().slice(0, 40),
-        web: String(t.website || t["contact:website"] || "").slice(0, 200),
-        ig: String(t["contact:instagram"] || "").slice(0, 80),
-        lat: +c.lat, lng: +c.lon,
-      });
+    for (const it of list) {
+      if (!it) continue;
+      const k = norm(it.name) + "|" + it.lat.toFixed(3) + "|" + it.lng.toFixed(3);
+      if (seen.has(k)) continue; seen.add(k); items.push(it);
     }
     res.setHeader("Cache-Control", "public, s-maxage=21600, stale-while-revalidate=604800");
-    return res.status(200).json({ items });
+    return res.status(200).json({ items: items.slice(0, 60) });
   } catch (e) {
-           return res.status(502).json({ error: "Falha na etapa “" + step + "”: " + (e.name === "TimeoutError" ? "tempo esgotado" : e.message) + ". Tente de novo em instantes." });
-     }
-   };
+    return res.status(502).json({ error: "Falha na etapa “" + step + "”: " + (e.name === "TimeoutError" ? "tempo esgotado" : e.message) + ". Tente de novo em instantes." });
+  }
+};
